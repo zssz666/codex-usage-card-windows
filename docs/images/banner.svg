@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title description">
+  <title id="title">Codex Usage Card for Windows</title>
+  <desc id="description">Remaining usage at a glance. An illustrative sidebar with two compact rings accompanies the project title.</desc>
+  <defs>
+    <linearGradient id="ring" x1="0" x2="1" y1="1" y2="0">
+      <stop stop-color="#299ac0"/>
+      <stop offset="1" stop-color="#58bba6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="420" rx="24" fill="#eff4f2"/>
+  <path d="M0 342H1200M0 378H1200" stroke="#dfe8e3"/>
+  <circle cx="1080" cy="40" r="200" fill="#e1ece5"/>
+  <circle cx="1080" cy="40" r="155" fill="none" stroke="#d1e3da" stroke-width="2"/>
+  <circle cx="1080" cy="40" r="115" fill="none" stroke="#d1e3da" stroke-width="2"/>
+  <g font-family="Segoe UI,Arial,sans-serif">
+    <rect x="58" y="46" width="157" height="29" rx="14" fill="#173e38"/>
+    <path d="M73 55l7-1v7h-7zm9-1l8-1v8h-8zm-9 9h7v7l-7-1zm9 0h8v8l-8-1z" fill="#e8f5ed"/>
+    <text x="102" y="65" font-size="12" font-weight="700" letter-spacing="1.5" fill="#e8f5ed">WINDOWS</text>
+    <text x="58" y="146" font-size="57" font-weight="700" letter-spacing="-2" fill="#173e38">Codex Usage Card</text>
+    <text x="60" y="188" font-size="24" fill="#50736a">Your remaining allowance. In your sidebar.</text>
+    <text x="60" y="240" font-size="18" fill="#50736a">5-hour + weekly rings · Reset details · Original UI</text>
+    <rect x="59" y="273" width="218" height="42" rx="8" fill="#ffffff" stroke="#c6d9cf"/>
+    <path d="M78 286v15l12-7.5z" fill="#2e846f"/>
+    <text x="103" y="299" font-size="16" font-weight="600" fill="#285d50">Start.cmd → Codex</text>
+    <text x="60" y="382" font-size="12" letter-spacing="1.7" fill="#6b887d">COMMUNITY WINDOWS PORT  /  OPEN SOURCE  /  MIT</text>
+    <g transform="translate(824 52)">
+      <rect x="8" y="9" width="296" height="300" rx="20" fill="#cbded3" opacity=".6"/>
+      <rect width="296" height="300" rx="18" fill="#ffffff" stroke="#c6d9cf"/>
+      <path d="M18 0h278v36H0V18A18 18 0 0118 0" fill="#f7faf8"/>
+      <path d="M0 36H296" stroke="#e3ebe6"/>
+      <rect x="18" y="15" width="6" height="6" rx="2" fill="#9db7a9"/>
+      <rect x="30" y="15" width="6" height="6" rx="2" fill="#bdd0c3"/>
+      <rect x="42" y="15" width="6" height="6" rx="2" fill="#d5e1d9"/>
+      <rect x="14" y="51" width="56" height="232" rx="13" fill="#f6f8f6" stroke="#e3e9e4"/>
+      <rect x="31" y="67" width="22" height="4" rx="2" fill="#acbeb4"/>
+      <rect x="31" y="77" width="15" height="4" rx="2" fill="#c5d2ca"/>
+      <circle cx="42" cy="128" r="15" fill="none" stroke="#e0ebe5" stroke-width="5"/>
+      <circle cx="42" cy="128" r="15" fill="none" stroke="url(#ring)" stroke-width="5" stroke-dasharray="60 95" stroke-linecap="round" transform="rotate(-90 42 128)"/>
+      <text x="42" y="161" text-anchor="middle" font-size="11" font-weight="700" fill="#2f4e43">5h</text>
+      <circle cx="42" cy="204" r="15" fill="none" stroke="#e0ebe5" stroke-width="5"/>
+      <circle cx="42" cy="204" r="15" fill="none" stroke="#b4a9c4" stroke-width="5" stroke-dasharray="27 95" stroke-linecap="round" transform="rotate(-90 42 204)"/>
+      <text x="42" y="237" text-anchor="middle" font-size="10" font-weight="700" fill="#2f4e43">WEEK</text>
+      <text x="91" y="77" font-size="14" font-weight="600" fill="#365d4e">Keep building.</text>
+      <rect x="91" y="98" width="169" height="7" rx="3" fill="#e3ebe6"/>
+      <rect x="91" y="113" width="126" height="7" rx="3" fill="#e3ebe6"/>
+      <rect x="91" y="150" width="182" height="95" rx="10" fill="#f0f5f1"/>
+      <path d="M107 173h109m-109 14h145m-145 14h83m-83 14h126" stroke="#c3d7ca" stroke-width="5" stroke-linecap="round"/>
+      <text x="94" y="274" font-size="9" letter-spacing="1.4" fill="#81988c">ILLUSTRATION · SEE ACTUAL CAPTURE BELOW</text>
+    </g>
+  </g>
+</svg>

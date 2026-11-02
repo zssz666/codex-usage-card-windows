@@ -1,0 +1,14 @@
+.inspection/
+docs/superpowers/
+node_modules/
+*.log
+status.json
+stop.flag
+auth.json
+.env
+.env.*
+*.pem
+*.key
+*.zip
+.DS_Store
+Thumbs.db
