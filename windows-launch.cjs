@@ -16,11 +16,12 @@ function launchError(error) {
   return new Error(`Codex alias launch failed: ${error.message}`, {cause: error});
 }
 
-function launchStoreApp({executable, args, spawn}) {
+function launchStoreApp({executable, appPath, args, spawn}) {
   return new Promise((resolve, reject) => {
     let child;
     try {
-      child = spawn(executable, args, {detached: true, stdio: 'ignore', windowsHide: false});
+      // Owl derives its profile from argv[0]; the alias must retain the package executable identity.
+      child = spawn(executable, args, {argv0: appPath, detached: true, stdio: 'ignore', windowsHide: false});
     } catch (error) {
       reject(launchError(error));
       return;

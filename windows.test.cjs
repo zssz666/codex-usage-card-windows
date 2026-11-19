@@ -10,7 +10,7 @@ test('agent accepts graceful IPC shutdown on Windows without relying on SIGTERM'
  });
 });
 const assert=require('node:assert/strict');
-const {launchArgs}=require('./windows.cjs');
+const {launchArgs,readMonitorStatus}=require('./windows.cjs');
 const {formatRateLimits,unavailableValue,parseArgs}=require('./agent.cjs');
 test('default active polling matches upstream at sixty seconds',()=>{
  const old=process.env.CODEX_BADGE_POLL_MS;delete process.env.CODEX_BADGE_POLL_MS;
@@ -33,6 +33,13 @@ test('failed reset query is unavailable rather than zero cards',async()=>{
 });
 test('debug endpoint stays local and uses the upstream port',()=>{
   assert.deepEqual(launchArgs(),['--remote-debugging-address=127.0.0.1','--remote-debugging-port=39222']);
+});
+test('monitor keeps running across a window replacement and stops when the app closes',async()=>{
+ const readFailed=()=>Promise.reject(new Error('Target closed during status check'));
+ assert.deepEqual(await readMonitorStatus(readFailed,()=>true),{windows:null,error:'Target closed during status check'});
+ assert.equal((await readMonitorStatus(async()=>[],()=>true)).windows,null);
+ assert.deepEqual(await readMonitorStatus(async()=>[{placed:true}],()=>true),{windows:[{placed:true}]});
+ assert.equal(await readMonitorStatus(async()=>[],()=>false),null);
 });
 test('Plus rings show remaining allowance for each distinct window',()=>{
   const v=formatRateLimits({rateLimits:{planType:'plus',primary:{usedPercent:11,windowDurationMins:300},secondary:{usedPercent:8,windowDurationMins:10080}}});

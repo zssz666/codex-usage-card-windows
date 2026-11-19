@@ -29,13 +29,49 @@ async function evaluate(target,expression){
     function finish(error,value){clearTimeout(timer);ws.close();error?reject(error):resolve(value);}
     ws.addEventListener('open',()=>ws.send(JSON.stringify({id:1,method:'Runtime.evaluate',params:{expression,returnByValue:true}})));
     ws.addEventListener('error',()=>finish(Error('CDP connection failed')));
-    ws.addEventListener('message',event=>{const v=JSON.parse(event.data);if(v.id===1)finish(v.error||v.result?.exceptionDetails,v.result?.result?.value);});
+    ws.addEventListener('message',event=>{
+      const response=JSON.parse(event.data);
+      if(response.id!==1)return;
+      const error=response.error?.message ?? response.result?.exceptionDetails?.text;
+      finish(error ? new Error(error) : null,response.result?.result?.value);
+    });
   });
 }
 async function status(){
   const results=[];
   for(const p of await pages())results.push(await evaluate(p,'window.__codexUsageBadge?.status() ?? null'));
   return results;
+}
+async function readMonitorStatus(readStatus,isAppOpen){
+  let error='Codex is not exposing a compatible window.';
+  try{
+    const windows=await readStatus();
+    if(windows.length)return {windows};
+  }catch(failure){
+    error=failure.message;
+  }
+  // A renderer can disappear during a window replacement without the desktop app exiting.
+  if(!isAppOpen())return null;
+  return {windows:null,error};
+}
+async function watchStatus(agent){
+  let agentFailure;
+  let lastError;
+  agent.once('error',error=>{agentFailure=error;});
+  agent.once('exit',(code,signal)=>{agentFailure=new Error(`Usage agent exited (${signal ?? code}).`);});
+  while(!fs.existsSync(stopFile)&&!agentFailure){
+    const snapshot=await readMonitorStatus(status,appOpen);
+    fs.writeFileSync(path.join(__dirname,'status.json'),JSON.stringify({
+      checkedAt:new Date().toISOString(),...(snapshot ?? {windows:[]})
+    },null,2));
+    if(!snapshot)break;
+    if(snapshot.error&&snapshot.error!==lastError){
+      console.warn(`[${new Date().toISOString()}] Codex window status unavailable: ${snapshot.error}`);
+    }
+    lastError=snapshot.error;
+    await sleep(5000);
+  }
+  if(agentFailure)throw agentFailure;
 }
 async function monitor(attach=false){
   const {app,cli,launchApp}=discover();
@@ -44,19 +80,15 @@ async function monitor(attach=false){
   else try{await pages();throw Error('Port 39222 is already in use.');}catch(e){if(e.message.includes('already in use'))throw e;}
   fs.rmSync(stopFile,{force:true});
   if(!attach){
-  console.log(`[${new Date().toISOString()}] Launching Codex through registered alias: ${launchApp}`);
-  await launchStoreApp({executable:launchApp,args:launchArgs(),spawn});
+  console.log(`[${new Date().toISOString()}] Launching Codex through registered alias: ${launchApp}; executable identity: ${app}`);
+  await launchStoreApp({executable:launchApp,appPath:app,args:launchArgs(),spawn});
   }
   let ready=false;
   for(let i=0;i<30;i++){if(fs.existsSync(stopFile))return;try{if((await pages()).length){ready=true;break;}}catch{}await sleep(1000);}
   if(!ready)throw Error('Codex did not expose a compatible main window within 30 seconds.');
   const agent=spawn(process.execPath,[path.join(__dirname,'agent.cjs'),'--app',app,'--codex-bin',cli],{stdio:['ignore','inherit','inherit','ipc'],windowsHide:true});
-  let failed=false;agent.on('error',()=>{failed=true;});agent.on('exit',()=>{failed=true;});
   try{
-    while(!fs.existsSync(stopFile)&&!failed){
-      try{const s=await status();fs.writeFileSync(path.join(__dirname,'status.json'),JSON.stringify({checkedAt:new Date().toISOString(),windows:s},null,2));if(!s.length)break;}catch{break;}
-      await sleep(5000);
-    }
+    await watchStatus(agent);
   }finally{
     await new Promise(resolve=>{
       if(agent.exitCode!==null||agent.signalCode!==null)return resolve();
@@ -88,5 +120,5 @@ async function main(){
   child.on('error',e=>console.error(e.message));child.unref();fs.closeSync(log);
   console.log('Launcher started. Check windows.log and status.json for results.');
 }
-module.exports={launchArgs,resolveLaunchAlias,launchStoreApp};
+module.exports={launchArgs,resolveLaunchAlias,launchStoreApp,readMonitorStatus};
 if(require.main===module)main().catch(e=>{console.error(e);process.exitCode=1;});

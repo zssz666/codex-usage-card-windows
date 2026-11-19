@@ -32,6 +32,7 @@ It puts your Codex account's **remaining usage allowance** in the desktop app's 
 - 🖱️ **Hover details** for reset times and reset credits when available.
 - 🎨 **Original appearance**: reuse the upstream rings, colors, single/dual layouts, and tooltip.
 - 🌗 **Light and dark themes**, plus keyboard-focus details.
+- 🫥 **Hide the native usage ring** while the plugin runs; stopping the plugin restores the sidebar's native Usage button.
 - 🔄 **Real usage updates**: retain upstream 60-second active polling, 5-second connection checks, and quota-update notifications.
 - 📦 **Portable folder**: Node.js 24+, no `npm install`, and no changes to the Codex application package.
 
@@ -119,7 +120,9 @@ A normal visible main window typically reports `placed=true`, `badgeCount=1`, an
 
 ### 🔧 What does this revision fix?
 
-Executing the EXE inside the Store package directly produced **`spawn EPERM` / Windows error 5** on the checked machine. This revision launches via the registered `chatgpt-desktop.exe` alias. Alias discovery uses `lstat` so the special reparse point is not mistaken for a missing file.
+Executing the EXE inside the Store package directly produced **`spawn EPERM` / Windows error 5** on the checked machine. This revision launches via the registered `chatgpt-desktop.exe` alias. Alias discovery uses `lstat` so the special reparse point is not mistaken for a missing file. The launcher explicitly sets `argv[0]` to the package's official `ChatGPT.exe` path so the app shares its profile and single-instance lock with notification launches.
+
+> 🗂️ Earlier alias launches could create a separate `Codex\web\chatgpt-desktop` data directory, allowing notification clicks to open another client. The fix uses the official `Codex\web\Codex` directory. The old directory is preserved: nothing is deleted, overwritten, or automatically merged. Save your work and manually quit all existing instances before starting through `Start.cmd`; the plugin will not close your windows.
 
 The upstream ring UI and quota protocol are retained. A missing required alias produces an explicit error; the launcher does not silently try other launch methods or change system permissions.
 
@@ -145,14 +148,14 @@ See [SECURITY.md](SECURITY.md). These statements are not a security-audit guaran
 | Window opens without rings | Read `windows.log`, then run `Status.cmd`; updates may change debugging or sidebar structure |
 | Status returns `fetch failed` | No compatible debugging port is available, or the client/monitor has exited |
 | Usage unavailable | Check Codex login and network; the account may not expose that data |
-| Rings disappear after a brief disconnect | The current monitor may exit on endpoint failure; inspect the log and restart manually |
+| Rings disappear after a brief disconnect | The plugin reconnects when the window returns if Codex remains open. Check `windows.log` if the rings do not return |
 
 ## ✅ Validation & limitations
 
 | Area | Evidence |
 | --- | --- |
-| 🧪 Offline tests | **12 passed**: 6 inherited Windows tests and 6 launch-regression tests |
-| 🪟 Machine checked | One Windows installation, Store Codex `26.1027.3384.0`, Node.js `24.11.1` |
+| 🧪 Offline tests | Cover usage reads, startup, and window replacement |
+| 🪟 Machine checked | Store Codex `26.1027.3384.0` and `26.1111.2228.0`, Node.js `24.11.1` |
 | 📊 Actual display | User-provided screenshot confirms dual rings with real readings |
 | 🖼️ UI provenance | Upstream ring and tooltip rendering retained; local hover behavior has not received separate full acceptance testing |
 | 🧭 Not fully verified | Sign-in startup, account switching, concurrent launches, long-term reconnects, other versions, and different display scales |
@@ -175,6 +178,7 @@ No third-party npm dependencies. `agent.cjs` is an upstream generated runtime wi
 ├─ windows.cjs                       # Discovery, monitoring, commands
 ├─ windows-launch.cjs                # Store app execution alias launch
 ├─ agent.cjs                         # Upstream usage agent and original UI
+├─ native-usage.cjs                  # Hides the native sidebar usage ring
 ├─ reset-credits.cjs                 # Supplemental reset-credit query
 ├─ autostart.cjs                     # Optional, manually configured entry
 ├─ *.test.cjs                        # Offline tests

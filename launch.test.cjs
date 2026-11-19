@@ -5,6 +5,7 @@ const {EventEmitter} = require('node:events');
 const launcher = require('./windows.cjs');
 const LOCAL_APP_DATA = 'C:\\Users\\Test User\\AppData\\Local';
 const EXPECTED_ALIAS = 'C:\\Users\\Test User\\AppData\\Local\\Microsoft\\WindowsApps\\chatgpt-desktop.exe';
+const EXPECTED_APP = 'C:\\Program Files\\WindowsApps\\OpenAI.Codex_test\\app\\ChatGPT.exe';
 const DEBUG_ARGS = ['--remote-debugging-address=127.0.0.1', '--remote-debugging-port=39222'];
 
 test('Store launch resolves the registered alias outside the protected package directory', () => {
@@ -27,13 +28,14 @@ test('an unavailable local application directory produces an explicit error', ()
   }), /LOCALAPPDATA/);
 });
 
-test('Store activation preserves debug arguments and waits for process creation', async () => {
+test('Store activation preserves the official executable identity for single-instance handoff', async () => {
   const calls = [];
   const child = new EventEmitter();
   child.pid = 123;
   child.unref = () => {};
   const result = await launcher.launchStoreApp({
     executable: EXPECTED_ALIAS,
+    appPath: EXPECTED_APP,
     args: DEBUG_ARGS,
     spawn: (...args) => {
       calls.push(args);
@@ -45,6 +47,7 @@ test('Store activation preserves debug arguments and waits for process creation'
   assert.equal(calls.length, 1);
   assert.equal(calls[0][0], EXPECTED_ALIAS);
   assert.deepEqual(calls[0][1], DEBUG_ARGS);
+  assert.equal(calls[0][2].argv0, EXPECTED_APP);
   assert.equal(calls[0][2].detached, true);
 });
 

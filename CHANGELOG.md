@@ -1,5 +1,20 @@
 # 📝 Changelog / 更新记录
 
+## 2026-11-19 — Sidebar recovery / 侧栏恢复
+
+- Keep the usage monitor running and log temporary connection failures while Codex replaces its window.
+- 客户端更换窗口时，额度插件继续运行并记录短暂断连，窗口恢复后重新显示圆环。
+
+## 2026-11-09 — Notification duplicate launch / 通知重复启动
+
+- Preserve the official package executable in `argv[0]` while launching through the Store execution alias, sharing the native profile and single-instance lock with notification launches.
+- 修复别名启动与官方通知使用不同配置目录、允许重复实例的问题。保留旧目录，不自动迁移或覆盖数据。
+
+## 2026-11-04 — Native usage ring / 官方额度圆环
+
+- Hide the native sidebar Usage button while the plugin is active; remove the rule with the plugin's own stylesheet on stop.
+- 插件运行时隐藏侧栏官方“用量”按钮；停止插件时随插件样式一起移除隐藏规则。
+
 ## 2026-11-02 — Windows community preview
 
 ### 🪟 修复 / Fixes
